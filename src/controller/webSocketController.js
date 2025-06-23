@@ -14,7 +14,7 @@ const webSocketHandler = (ws) => {
         if (msg.type === "insert_face") {
             await insertFaceHandler(ws, msg);
         }
-        } catch {
+        } catch (error) {
         console.error(error);
         ws.send(
             JSON.stringify({
