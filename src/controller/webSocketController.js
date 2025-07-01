@@ -1,5 +1,7 @@
 const { verifyFaceHandler } = require('./facesController');
 const { insertFaceHandler } = require('./facesController');
+const { signUpAdmin } = require ('./authController');
+const { loginAdmin } = require ('./authController');
 
 // WEB SOCKET HANDLER
 const webSocketHandler = (ws) => {
@@ -13,6 +15,14 @@ const webSocketHandler = (ws) => {
 
         if (msg.type === "insert_face") {
             await insertFaceHandler(ws, msg);
+        }
+
+        if (msg.type === "insert_admin") {
+            await signUpAdmin(ws, msg);
+        }
+
+        if (msg.type === "login") {
+            await loginAdmin(ws, msg);
         }
         } catch (error) {
         console.error(error);

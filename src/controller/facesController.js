@@ -1,18 +1,41 @@
 const modelFace = require("../models/faces");
 
-//HITUNG EUCLIDEAN DISTANCE
 function calculateEuclideanDistance(a, b) {
     let sum = 0;
     for (let i = 0; i < a.length; i++) {
-        sum += Math.pow(a[i] - b[i], 2);
+        const diff = a[i] - b[i];
+        sum += diff * diff;
     }
     return Math.sqrt(sum);
+}
+
+// Find nearest embedding in DB
+function findNearest(userEmbedding, dbEmbeddings) {
+    let bestMatch = null;
+    let smallestDistance = Infinity;
+
+    for (let row of dbEmbeddings) {
+        const knownEmbedding = row.embedding?.split(",").map(Number);
+        if (!knownEmbedding || knownEmbedding.length !== userEmbedding.length) continue;
+
+        const distance = calculateEuclideanDistance(userEmbedding, knownEmbedding);
+        if (distance < smallestDistance) {
+            smallestDistance = distance;
+            bestMatch = {
+                name: row.name,
+                distance
+            };
+        }
+    }
+
+    return bestMatch;
 }
 
 // VERIFY FACE HANDLER
 const verifyFaceHandler = async (ws, msg) => {
     const userEmbedding = msg.embedding;
-
+    console.log("Message received:", msg);
+    console.log("Embedding:", msg.embedding);
     if (!userEmbedding || !Array.isArray(userEmbedding)) {
         ws.send(JSON.stringify({
             type: "error",
@@ -21,38 +44,32 @@ const verifyFaceHandler = async (ws, msg) => {
         return;
     }
 
-    const [results] = await modelFace.getAllFaces();
+    try {
+        const [results] = await modelFace.getAllFaces();
+        const match = findNearest(userEmbedding, results);
 
-    let bestMatch = null;
-    let smallestDistance = Infinity;
-
-    for (let row of results) {
-        const dbEmbedding = row.embedding?.split(",").map(Number) || [];
-
-        if (dbEmbedding.length !== userEmbedding.length) {
-            console.warn("Skipping mismatched embedding length:", {
-                userLen: userEmbedding.length,
-                dbLen: dbEmbedding.length,
-                name: row.name
-            });
-            continue;
+        if (match) {
+            ws.send(JSON.stringify({
+                type: "recognize_face",
+                match: match.distance < 0.9,
+                name: match.name,
+                distance: match.distance
+            }));
+        } else {
+            ws.send(JSON.stringify({
+                type: "recognize_face",
+                match: false,
+                name: null,
+                distance: null
+            }));
         }
-
-        const distance = calculateEuclideanDistance(userEmbedding, dbEmbedding);
-        if (distance < smallestDistance) {
-            smallestDistance = distance;
-            bestMatch = row.name;
-        }
+    } catch (error) {
+        console.error("Verify face error:", error);
+        ws.send(JSON.stringify({
+            type: "error",
+            message: "Server error during recognition"
+        }));
     }
-
-    ws.send(
-        JSON.stringify({
-            type: "recognize_face",
-            match: smallestDistance < 0.6,
-            name: bestMatch,
-            distance: smallestDistance,
-        })
-    );
 };
 
 // INSERT FACE HANDLER
