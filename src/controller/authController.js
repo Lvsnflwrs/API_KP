@@ -4,9 +4,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const signUpAdmin = async (ws, msg) => {
-    const {username, password} = msg;
+    const {username, password, email, role} = msg;
     try {
-        const [cekUser] = await modelAuth.getAdminbyUsername(username);
+        const [cekUser] = await modelAuth.getAdminbyEmail(email);
         if (cekUser.length > 0) {
             return ws.send(
                 JSON.stringify({
@@ -16,7 +16,7 @@ const signUpAdmin = async (ws, msg) => {
                 })
             )
         }
-        await modelAuth.addAdmin(username, password);
+        await modelAuth.addAdmin(username, password, email, role);
         ws.send(
             JSON.stringify({
                 type: "insert_admin",
@@ -37,9 +37,9 @@ const signUpAdmin = async (ws, msg) => {
 };
 
 const loginAdmin = async (ws, msg) => {
-    const { username, password } = msg;
+    const { email, password } = msg;
     try {
-        const [found] = await modelAuth.getAdminbyUsername(username);
+        const [found] = await modelAuth.getAdminbyEmail(email);
         if (found.length > 0) {
         const admin = found[0];
         const match = await bcrypt.compare(password, admin.password);
@@ -53,6 +53,12 @@ const loginAdmin = async (ws, msg) => {
                     success: true,
                     message: "login successful",
                     token,
+                    data: { // Menambahkan objek data untuk detail admin
+                        id: admin.id,
+                        username: admin.username,
+                        email: admin.email, 
+                        role: admin.role 
+                    }
                 })
             )
         }

@@ -1,16 +1,16 @@
 const conn = require("../config/DBHelper");
 const bcrypt = require("bcrypt");
 
-const getAdminbyUsername = (username) => {
-    const QUERY = "SELECT * FROM admin WHERE username = ?";
-    return conn.execute(QUERY, [username]);
+const getAdminbyEmail = (email) => {
+    const QUERY = "SELECT id, username, password, email, role, created_at FROM admin WHERE email = ?";
+    return conn.execute(QUERY, [email]);
 }
 
-const addAdmin = async (username, password) => {
-    const QUERY = "INSERT  INTO admin (username, password, created_at) VALUES (?, ?, NOW())";
+const addAdmin = async (username, password, email, role) => {
+    const QUERY = "INSERT INTO admin (username, password, email, role, created_at) VALUES (?, ?, ?, ?, NOW())";
     const salt = 10;
     const hashed = await bcrypt.hash(password, salt);
-    return conn.execute(QUERY, [username, hashed])
+    return conn.execute(QUERY, [username, hashed, email, role]);
 }
 
 module.exports = {
