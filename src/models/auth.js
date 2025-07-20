@@ -14,6 +14,6 @@ const addAdmin = async (username, password, email, role) => {
 }
 
 module.exports = {
-    getAdminbyUsername,
+    getAdminbyEmail,
     addAdmin,
 }
