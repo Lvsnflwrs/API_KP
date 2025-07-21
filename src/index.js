@@ -4,7 +4,7 @@ const { WebSocketServer } = require("ws");
 const { webSocketHandler } = require("./controller/webSocketController");
 
 const PORT = process.env.PORT || 3000;
-const wss = new WebSocketServer({ port: PORT });
+const wss = new WebSocketServer({ host: '0.0.0.0', port: PORT });
 
 wss.on("connection", webSocketHandler);
 

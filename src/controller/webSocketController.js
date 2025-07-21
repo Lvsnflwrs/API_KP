@@ -6,6 +6,7 @@ const { loginAdmin } = require ('./authController');
 // WEB SOCKET HANDLER
 const webSocketHandler = (ws) => {
     ws.on("message", async (data) => {
+        console.log("Received message from client:", data.toString());
         try {
         const msg = JSON.parse(data);
 
@@ -21,7 +22,7 @@ const webSocketHandler = (ws) => {
             await signUpAdmin(ws, msg);
         }
 
-        if (msg.type === "login") {
+        if (msg.type === "LOGIN_REQUEST") {
             await loginAdmin(ws, msg);
         }
         } catch (error) {
