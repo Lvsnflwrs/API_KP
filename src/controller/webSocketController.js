@@ -4,6 +4,7 @@ const { signUpAdmin } = require ('./authController');
 const { loginAdmin } = require ('./authController');
 const { getAdminProfile, updateAdminProfile } = require('./profileController');
 
+const { insertAttendanceLog } = require('./attendanceController')
 // WEB SOCKET HANDLER
 const webSocketHandler = (ws) => {
     ws.on("message", async (data) => {
@@ -27,14 +28,16 @@ const webSocketHandler = (ws) => {
                 await loginAdmin(ws, msg);
             }
 
-            // New: Handle profile requests
             if (msg.type === "GET_PROFILE_REQUEST") {
                 await getAdminProfile(ws, msg);
             }
 
-            // New: Handle profile updates
             if (msg.type === "UPDATE_PROFILE_REQUEST") {
                 await updateAdminProfile(ws, msg);
+            }
+
+            if (msg.type == "INSERT_ATTENDANCE") {
+                await insertAttendanceLog(ws, msg);
             }
 
         } catch (error) {

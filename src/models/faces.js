@@ -1,15 +1,14 @@
 const conn = require('../config/DBHelper');
 
-const getAllFaces = () => {
-    const QUERY = "SELECT name, embedding FROM faces";
+const getUserFaceData = () => {
+    const QUERY = "SELECT name, embeddings FROM users";
     return conn.execute(QUERY);
 }
 
-
-const insertFace = async (name, embedding) => {
-    const QUERY = "INSERT INTO faces (name, embedding, created_at) VALUES (?, ?, NOW())";
+const insertUsers = async (name, email, phone, embeddings) => {
+    const QUERY = "INSERT INTO users (name, email, phone, embeddings, created_at) VALUES (?, ?, ?, ?, NOW())";
     try {
-        const [result] = await conn.execute(QUERY, [name, embedding]);
+        const [result] = await conn.execute(QUERY, [name, email, phone, embeddings]);
         console.log("Insert result:", result);
         return result;
     } catch (error) {
@@ -18,6 +17,6 @@ const insertFace = async (name, embedding) => {
     }
 };
 module.exports = {
-    getAllFaces,
-    insertFace
+    getUserFaceData,
+    insertUsers
 }

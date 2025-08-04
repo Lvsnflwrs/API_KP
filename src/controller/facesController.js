@@ -15,7 +15,7 @@ function findNearest(userEmbedding, dbEmbeddings) {
     let smallestDistance = Infinity;
 
     for (let row of dbEmbeddings) {
-        const knownEmbedding = row.embedding?.split(",").map(Number);
+        const knownEmbedding = row.embeddings?.split(",").map(Number);
         if (!knownEmbedding || knownEmbedding.length !== userEmbedding.length) continue;
 
         const distance = calculateEuclideanDistance(userEmbedding, knownEmbedding);
@@ -33,9 +33,9 @@ function findNearest(userEmbedding, dbEmbeddings) {
 
 // VERIFY FACE HANDLER
 const verifyFaceHandler = async (ws, msg) => {
-    const userEmbedding = msg.embedding;
+    const userEmbedding = msg.embeddings;
     console.log("Message received:", msg);
-    console.log("Embedding:", msg.embedding);
+    console.log("Embedding:", msg.embeddings);
     if (!userEmbedding || !Array.isArray(userEmbedding)) {
         ws.send(JSON.stringify({
             type: "error",
@@ -45,7 +45,7 @@ const verifyFaceHandler = async (ws, msg) => {
     }
 
     try {
-        const [results] = await modelFace.getAllFaces();
+        const [results] = await modelFace.getUserFaceData();
         const match = findNearest(userEmbedding, results);
 
         if (match) {
@@ -75,11 +75,13 @@ const verifyFaceHandler = async (ws, msg) => {
 // INSERT FACE HANDLER
 const insertFaceHandler = async (ws, msg) => {
     try {
-        const { name, embedding } = msg;
+        const { name, email, phone, embeddings } = msg;
         console.log("Message received:", msg);
         console.log("Name:", msg.name);
-        console.log("Embedding:", msg.embedding);
-        if (!name || !embedding || !Array.isArray(embedding)) {
+        console.log("Email:", msg.email);
+        console.log("Phone Number:", msg.phone);
+        console.log("Embedding:", msg.embeddings);
+        if (!name || !email || !phone || !embeddings || !Array.isArray(embeddings)) {
             return ws.send(JSON.stringify({
                 type: "insert_face",
                 success: false,
@@ -87,8 +89,8 @@ const insertFaceHandler = async (ws, msg) => {
             }));
         }
 
-        const embeddingString = embedding.join(",");
-        await modelFace.insertFace(name, embeddingString);
+        const embeddingString = embeddings.join(",");
+        await modelFace.insertUsers(name, email, phone, embeddingString);
 
         ws.send(
             JSON.stringify({

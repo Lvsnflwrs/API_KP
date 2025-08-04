@@ -60,7 +60,11 @@ const loginAdmin = async (ws, msg) => {
                     username: admin.username,
                     email: admin.email,
                     role: admin.role,
-                    // Pastikan hanya field ini yang dikirim. Jangan sertakan password atau created_at di sini.
+
+                }
+            }));
+            return;
+        }
                 }
             })
         );
