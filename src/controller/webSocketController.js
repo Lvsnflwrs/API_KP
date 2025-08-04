@@ -3,8 +3,8 @@ const { insertFaceHandler } = require('./facesController');
 const { signUpAdmin } = require ('./authController');
 const { loginAdmin } = require ('./authController');
 const { getAdminProfile, updateAdminProfile } = require('./profileController');
-const { insertAttendanceLog } = require('./attendanceController')
 
+const { insertAttendanceLog } = require('./attendanceController')
 // WEB SOCKET HANDLER
 const webSocketHandler = (ws) => {
     ws.on("message", async (data) => {

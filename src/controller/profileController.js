@@ -5,20 +5,20 @@ const getAdminProfile = async (ws, msg) => {
     const { adminId } = msg;
     try {
         const [foundAdmin] = await modelAuth.getAdminById(adminId); // You'll need to implement getAdminById in modelAuth
-        if (foundAdmin.length > 0) {
-            const admin = foundAdmin[0];
-            return ws.send(
-                JSON.stringify({
-                    type: "profile_data",
-                    success: true,
-                    message: "Profile data retrieved successfully",
-                    data: {
-                        id: admin.id,
-                        username: admin.username,
-                        email: admin.email,
-                        role: admin.role,
-                        
-                    },
+       if (foundAdmin.length > 0) {
+        const admin = foundAdmin[0];
+        return ws.send(
+            JSON.stringify({
+                type: "profile_data",
+                success: true,
+                message: "Profile data retrieved successfully",
+                data: {
+                    id: admin.id,
+                    username: admin.username,
+                    email: admin.email,
+                    role: admin.role,
+                    // Pastikan hanya field ini yang dikirim. Jangan sertakan password atau created_at di sini.
+                },
             })
         );
     } else {
