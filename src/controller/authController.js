@@ -42,28 +42,28 @@ const loginAdmin = async (ws, msg) => {
     try {
         const [found] = await modelAuth.getAdminbyEmail(email);
         if (found.length > 0) {
-        const admin = found[0];
-        const match = await bcrypt.compare(password, admin.password);
+            const admin = found[0];
+            const match = await bcrypt.compare(password, admin.password);
         if (match) {
             const token = jwt.sign({ id: admin.id }, process.env.JWT_SECRET, {
-            expiresIn: "5h",
+                expiresIn: "5h",
             });
             console.log("Sending successful login response to client.");
-            return ws.send(
-                JSON.stringify({
-                    type: "login",
-                    success: true,
-                    message: "login successful",
-                    token,
-                    data: { // Menambahkan objek data untuk detail admin
-                        id: admin.id,
-                        username: admin.username,
-                        email: admin.email, 
-                        role: admin.role 
-                    }
-                })
-            )
+            ws.send(JSON.stringify({
+                type: "login",
+                success: true,
+                message: "login successful",
+                token,
+                data: {
+                    id: admin.id,
+                    username: admin.username,
+                    email: admin.email,
+                    role: admin.role,
+                }
+            }));
+            return;
         }
+    
         console.log("Sending incorrect credentials response to client.");
         }
         return ws.send(

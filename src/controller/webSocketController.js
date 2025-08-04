@@ -2,41 +2,56 @@ const { verifyFaceHandler } = require('./facesController');
 const { insertFaceHandler } = require('./facesController');
 const { signUpAdmin } = require ('./authController');
 const { loginAdmin } = require ('./authController');
+const { getAdminProfile, updateAdminProfile } = require('./profileController');
+const { insertAttendanceLog } = require('./attendanceController')
 
 // WEB SOCKET HANDLER
 const webSocketHandler = (ws) => {
     ws.on("message", async (data) => {
         console.log("Received message from client:", data.toString());
         try {
-        const msg = JSON.parse(data);
+            const msg = JSON.parse(data);
 
-        if (msg.type === "recognize_face") {
-            await verifyFaceHandler(ws, msg);
-        }
+            if (msg.type === "recognize_face") {
+                await verifyFaceHandler(ws, msg);
+            }
 
-        if (msg.type === "insert_face") {
-            await insertFaceHandler(ws, msg);
-        }
+            if (msg.type === "insert_face") {
+                await insertFaceHandler(ws, msg);
+            }
 
-        if (msg.type === "insert_admin") {
-            await signUpAdmin(ws, msg);
-        }
+            if (msg.type === "insert_admin") {
+                await signUpAdmin(ws, msg);
+            }
 
-        if (msg.type === "LOGIN_REQUEST") {
-            await loginAdmin(ws, msg);
-        }
+            if (msg.type === "LOGIN_REQUEST") {
+                await loginAdmin(ws, msg);
+            }
+
+            if (msg.type === "GET_PROFILE_REQUEST") {
+                await getAdminProfile(ws, msg);
+            }
+
+            if (msg.type === "UPDATE_PROFILE_REQUEST") {
+                await updateAdminProfile(ws, msg);
+            }
+
+            if (msg.type == "INSERT_ATTENDANCE") {
+                await insertAttendanceLog(ws, msg);
+            }
+
         } catch (error) {
-        console.error(error);
-        ws.send(
-            JSON.stringify({
-            type: "error",
-            message: error.message,
-            })
-        );
+            console.error(error);
+            ws.send(
+                JSON.stringify({
+                    type: "error",
+                    message: error.message,
+                })
+            );
         }
     });
 };
 
 module.exports = {
-    webSocketHandler
-}
+    webSocketHandler,
+};
