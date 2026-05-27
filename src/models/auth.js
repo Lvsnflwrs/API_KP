@@ -7,7 +7,7 @@ const getAdminbyEmail = (email) => {
 };
 
 const getAdminById = (id) => {
-    const QUERY = "SELECT id, username, password, email, role, created_at FROM admin WHERE id = ?";
+    const QUERY = "SELECT id, username, password, email, role, created_at FROM admins WHERE id = ?";
     return conn.execute(QUERY, [id]);
 };
 
@@ -27,7 +27,7 @@ const updateAdmin = async (id, updateData) => {
     }
     queryValues.push(id); // Add id for the WHERE clause
     
-    const QUERY = `UPDATE admin SET ${queryParts.join(", ")} WHERE id = ?`;
+    const QUERY = `UPDATE admins SET ${queryParts.join(", ")} WHERE id = ?`;
     return conn.execute(QUERY, queryValues);
 };
 

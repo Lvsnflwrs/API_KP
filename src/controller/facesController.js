@@ -23,7 +23,8 @@ function findNearest(userEmbedding, dbEmbeddings) {
             smallestDistance = distance;
             bestMatch = {
                 name: row.name,
-                distance
+                admin_id: row.admin_id,
+                distance,
             };
         }
     }
@@ -34,8 +35,6 @@ function findNearest(userEmbedding, dbEmbeddings) {
 // VERIFY FACE HANDLER
 const verifyFaceHandler = async (ws, msg) => {
     const userEmbedding = msg.embeddings;
-    console.log("Message received:", msg);
-    console.log("Embedding:", msg.embeddings);
     if (!userEmbedding || !Array.isArray(userEmbedding)) {
         ws.send(JSON.stringify({
             type: "error",
@@ -53,7 +52,8 @@ const verifyFaceHandler = async (ws, msg) => {
                 type: "recognize_face",
                 match: match.distance < 0.9,
                 name: match.name,
-                distance: match.distance
+                distance: match.distance,
+                adminId: match.admin_id
             }));
         } else {
             ws.send(JSON.stringify({
@@ -75,22 +75,19 @@ const verifyFaceHandler = async (ws, msg) => {
 // INSERT FACE HANDLER
 const insertFaceHandler = async (ws, msg) => {
     try {
-        const { name, email, phone, embeddings } = msg;
-        console.log("Message received:", msg);
-        console.log("Name:", msg.name);
-        console.log("Email:", msg.email);
-        console.log("Phone Number:", msg.phone);
-        console.log("Embedding:", msg.embeddings);
-        if (!name || !email || !phone || !embeddings || !Array.isArray(embeddings)) {
+        const { adminId, name, email, phone, embeddings, role } = msg;
+        
+        if (!adminId || !name || !email || !phone || !embeddings || !Array.isArray(embeddings)) {
             return ws.send(JSON.stringify({
                 type: "insert_face",
                 success: false,
-                message: "Invalid name or embedding format. 'embedding' must be an array."
+                message: "Invalid input. Pastikan semua data termasuk adminId terisi dengan benar."
             }));
         }
 
         const embeddingString = embeddings.join(",");
-        await modelFace.insertUsers(name, email, phone, embeddingString);
+        const finalRole = role || 'admin';
+        await modelFace.insertUsers(adminId, name, email, phone, embeddingString, finalRole);
 
         ws.send(
             JSON.stringify({
@@ -110,9 +107,8 @@ const insertFaceHandler = async (ws, msg) => {
     }
 };
 
-
-
 module.exports = {
     verifyFaceHandler,
-    insertFaceHandler
+    insertFaceHandler,
+    findNearest
 }
