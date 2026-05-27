@@ -8,7 +8,6 @@ const { insertAttendanceLog } = require('./attendanceController')
 // WEB SOCKET HANDLER
 const webSocketHandler = (ws) => {
     ws.on("message", async (data) => {
-        console.log("Received message from client:", data.toString());
         try {
             const msg = JSON.parse(data);
 

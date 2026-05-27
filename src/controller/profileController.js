@@ -1,11 +1,11 @@
-const modelAuth = require("../models/auth"); // Using modelAuth for admin operations
-const bcrypt = require("bcrypt"); // For password hashing if you decide to allow password updates
+const modelAuth = require("../models/auth"); 
+const bcrypt = require("bcrypt");
 
 const getAdminProfile = async (ws, msg) => {
     const { adminId } = msg;
     try {
-        const [foundAdmin] = await modelAuth.getAdminById(adminId); // You'll need to implement getAdminById in modelAuth
-       if (foundAdmin.length > 0) {
+        const [foundAdmin] = await modelAuth.getAdminById(adminId); 
+        if (foundAdmin.length > 0) {
         const admin = foundAdmin[0];
         return ws.send(
             JSON.stringify({
@@ -17,7 +17,6 @@ const getAdminProfile = async (ws, msg) => {
                     username: admin.username,
                     email: admin.email,
                     role: admin.role,
-                    // Pastikan hanya field ini yang dikirim. Jangan sertakan password atau created_at di sini.
                 },
             })
         );
@@ -43,7 +42,7 @@ const getAdminProfile = async (ws, msg) => {
 };
 
 const updateAdminProfile = async (ws, msg) => {
-    const { adminId, username, email, password } = msg; // Include password if you want to allow updating it
+    const { adminId, username, email, password } = msg; 
     try {
         let updateData = { username, email };
         if (password) {
@@ -51,7 +50,7 @@ const updateAdminProfile = async (ws, msg) => {
             updateData.password = await bcrypt.hash(password, salt);
         }
 
-        const [result] = await modelAuth.updateAdmin(adminId, updateData); // Implement updateAdmin in modelAuth
+        const [result] = await modelAuth.updateAdmin(adminId, updateData); 
 
         if (result.affectedRows > 0) {
             return ws.send(
